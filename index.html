@@ -69,7 +69,13 @@ table{width:100%;border-collapse:collapse;font-size:13px}th{text-align:right;col
 const SUPABASE_URL = 'https://fmjsfdfwjkaqxhyceeoq.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_pTHiPE2P1V347aaFG0sFtw_dwncaRZE';
 const USERNAME_MAP = { 'sami': 'samtraider2020@gmail.com' };
-const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+  auth: {
+    persistSession: false,
+    autoRefreshToken: true,
+    detectSessionInUrl: false
+  }
+});
 let entries=[];
 
 function jdiv(a,b){return ~~(a/b)} function jmod(a,b){return a-~~(a/b)*b}
