@@ -94,7 +94,12 @@ async function login(){
   const b=document.getElementById('loginBtn');b.disabled=true;b.textContent='در حال ورود...';
   const {error}=await sb.auth.signInWithPassword({email,password:p});
   b.disabled=false;b.textContent='ورود';
-  if(error)document.getElementById('loginError').textContent=friendlyAuthError(error);else{document.getElementById('loginPass').value=''}
+  if(error){
+    document.getElementById('loginError').textContent=friendlyAuthError(error);
+  }else{
+    document.getElementById('loginPass').value='';
+    await loadEntries();
+  }
 }
 async function logout(){await sb.auth.signOut();entries=[];render();showLogin(true);setStatus('','خروج')}
 async function requireAdmin(){
