@@ -26,10 +26,14 @@ jobs:
               "$SUPABASE_URL/rest/v1/letters?select=id&limit=1" \
               -H "apikey: $SUPABASE_KEY" -H "Authorization: Bearer $SUPABASE_KEY")
             echo "Attempt $i -> HTTP $code"
-            if [ "$code" = "200" ]; then exit 0; fi
+            cat /tmp/resp.txt; echo
+            # 200 = rows returned; 401/403 = Postgres answered "permission denied"
+            # because RLS/grants block the anon role (expected). All of these mean
+            # the database is up and the request counted as activity.
+            case "$code" in 200|401|403) exit 0 ;; esac
             sleep 20
           done
-          echo "::error::Supabase did not respond with 200 (last HTTP $code). The project may be paused - restore it from the Supabase dashboard."
+          echo "::error::Supabase database did not respond (last HTTP $code). The project may be paused - restore it from the Supabase dashboard."
           cat /tmp/resp.txt
           exit 1
 
