@@ -431,10 +431,28 @@ async function doLogin(){
   const btn = document.getElementById('loginBtn');
   errEl.textContent = '';
   btn.disabled = true;
-  const { error } = await sb.auth.signInWithPassword({ email, password });
+  let error = null;
+  try {
+    ({ error } = await sb.auth.signInWithPassword({ email, password }));
+  } catch (e) {
+    error = { name: 'NetworkError', message: String(e && e.message || e) };
+  }
   btn.disabled = false;
   if (error){
-    errEl.textContent = 'ایمیل یا رمز عبور اشتباه است.';
+    console.error('Login error:', error);
+    const code = error.code || '';
+    const status = error.status || 0;
+    if (code === 'invalid_credentials') {
+      errEl.textContent = 'ایمیل یا رمز عبور اشتباه است.';
+    } else if (code === 'email_not_confirmed') {
+      errEl.textContent = 'ایمیل این کاربر هنوز تأیید نشده است (از پنل Supabase تأیید کنید).';
+    } else if (status === 429 || code === 'over_request_rate_limit') {
+      errEl.textContent = 'تعداد تلاش‌ها زیاد بوده؛ چند دقیقه بعد دوباره امتحان کنید.';
+    } else if (!status || error.name === 'AuthRetryableFetchError' || error.name === 'NetworkError') {
+      errEl.textContent = 'اتصال به سرور پایگاه‌داده برقرار نشد (احتمالاً پروژهٔ Supabase متوقف شده یا شبکه/فیلترشکن مشکل دارد).';
+    } else {
+      errEl.textContent = 'خطا در ورود: ' + (error.message || code || status);
+    }
     return;
   }
   document.getElementById('passwordInput').value = '';
